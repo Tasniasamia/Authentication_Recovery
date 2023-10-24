@@ -26,12 +26,12 @@ const createuser=async(req,res,next)=>{
         }
         bcrypt.hash(req.body.password, saltRounds,async function(err, hash) {
             const NewUser=new userModel({
-                name:req.body.name,
+                username:req.body.username,
                 email:req.body.email,
                 password:hash
             })
             await NewUser.save()
-            res.redirect('/user/route/findUser')
+            res.redirect('/user/route/login')
 
         });
 
@@ -42,29 +42,54 @@ const createuser=async(req,res,next)=>{
     }
 }
 const loginmiddle = passport.authenticate('local', {
-    failureRedirect: '/user/route/findUser',
+    failureRedirect: '/user/route/login',
     successRedirect: '/user/route',
 });
 
-const loginuser = async(req, res, next) => {
-    try {
-        // const user =await userModel.findOne({ email: req.body.email });
-        // console.log('login user', user);
-        // res.render('login');
-res.redirect('/');
+
+
+
+const loguser=(req,res,next)=>{
+    
+if(req.isAuthenticated()){
+    res.redirect('/user/route/profile')
+}
+next()
 
     }
-    catch (error) {
-        next(error);
+    const loginuser = async(req, res, next) => {
+        try {
+         res.render('login');
     }
-}
+        catch (error) {
+            next(error);
+        }
+    }
+    const logout=(req,res,next)=>{
+        try{
+            res.render('index');
+            req.logout((err)=>{
+                if(err){
+                    next(err)
+                }
+                return res.redirect('/user/route/')
+            })
+        }
+        catch(error){
+            next(error)
+        }
+    }
+    const profile = (req, res, next) => {
+        try {
+            if (req.isAuthenticated()) {
+                res.render('profile');
+            } else {
+                res.redirect('/user/route/login');
+            }
+        } catch (error) {
+            next(error);
+        }
+    }
+    
 
-const logout=(req,res,next)=>{
-    try{
-        res.render('index');
-    }
-    catch(error){
-        next(error)
-    }
-}
-module.exports={getdata,createuser,loginuser,logout,getUser,findUser,loginmiddle}
+module.exports={getdata,createuser,loginuser,logout,getUser,findUser,loguser,loginmiddle,profile}
