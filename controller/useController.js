@@ -82,7 +82,7 @@ next()
     const profile = (req, res, next) => {
         try {
             if (req.isAuthenticated()) {
-                res.render('profile');
+                res.render('profile',{username:req.user.username});
             } else {
                 res.redirect('/user/route/login');
             }
